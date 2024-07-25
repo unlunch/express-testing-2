@@ -41,29 +41,54 @@ try {
 }
 
 const updateUser = async (req, res) => {
-    const {id} = req.params;
-    const {body} = req;
+    const { id } = req.params;
+    const { body } = req;
 
     try {
+        // Periksa apakah user dengan ID tersebut ada
+        const user = await userModels.findUserById(id);
+        if (!user) {
+            return res.status(404).json({
+                status: 'failed',
+                message: `User with id ${id} does not exist`
+            });
+        }
+
+        // Jika user ada, lanjutkan untuk mengupdate
         await userModels.updateUserHandler(id, body);
 
         res.status(200).json({
+            status: 'success',
             message: 'UPDATE user success',
             data: {
                 id: id,
                 ...body
             },
-        })
+        });
     } catch (error) {
         res.status(500).json({
+            status: 'failed',
             message: error.message
         });
     }
 }
 
+
+
 const deleteUser = async (req, res) => {
     const { id } = req.params;
+
     try {
+        // Periksa apakah user dengan ID tersebut ada
+        const user = await userModels.findUserById(id);
+        if (!user) {
+            return res.status(404).json({
+                status: 'failed',
+                message: `User with id ${id} does not exist`
+            });
+        }
+
+        // Jika user ada, lanjutkan untuk menghapusnya
         await userModels.deleteUserHandler(id);
 
         res.status(200).json({
@@ -77,6 +102,7 @@ const deleteUser = async (req, res) => {
         });
     }
 }
+
 module.exports = {
     getAllUser,
     updateUser,
